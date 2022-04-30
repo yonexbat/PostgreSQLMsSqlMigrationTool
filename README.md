@@ -1,6 +1,6 @@
 # PostreSQLMsSqlMigrationTool
 
-Another data migration tool. Currently migration from mssql to postresql is supported.
+Another data migration tool. Currently migration from *mssql* to *postresql* is supported.
 
 The following mappings work from mssql to postgresql.
 
@@ -69,7 +69,8 @@ Add some data to it.
 
 ### Step 3
 
-Create simple intermediate tables in PostgreSQL.
+Create simple intermediate tables in PostgreSQL. Keep the intermediate tables as simple as possible.
+
     DROP TABLE IF EXISTS public.sampletable;
 
     CREATE TABLE IF NOT EXISTS public.sampletable
@@ -90,7 +91,7 @@ Create simple intermediate tables in PostgreSQL.
 
 ### Step 4
 
-Open file appsettings.json and set connection strings for SourceDatabase and DestinationDatabase. Then add a migration-item for each table you want to migrate.
+Open file appsettings.json and set connection strings for SourceDatabase and DestinationDatabase. Then add a *migration-item* for each table you want to migrate.
 
     {
       "ConnectionStrings": {
@@ -141,8 +142,8 @@ Open file appsettings.json and set connection strings for SourceDatabase and Des
       }
     }
 
-    ### Step 5
-    Start the application.
+### Step 5
+Start the application.
 
-    ### Step 6
-    Create sql statements to transfer to data from the intermediate tables to the final tables.
+### Step 6
+Create sql statements to transfer to data from the intermediate tables to the final tables.
