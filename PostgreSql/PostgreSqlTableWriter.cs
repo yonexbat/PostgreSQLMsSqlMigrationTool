@@ -50,6 +50,11 @@ namespace PostreSQLMsSqlMigrationTool.PostgreSql
                 {
                     _binaryImporter.WriteNull();
                 }
+                else if (value is DateTimeOffset)
+                {
+                    DateTimeOffset dateTimeOffset = (DateTimeOffset) value;
+                    _binaryImporter.Write(dateTimeOffset.ToUniversalTime());
+                }
                 else
                 {
                     _binaryImporter.Write(value);
