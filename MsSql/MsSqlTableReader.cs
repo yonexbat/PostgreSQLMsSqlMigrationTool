@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PostreSQLMsSqlMigrationTool
+namespace PostreSQLMsSqlMigrationTool.MsSql
 {
-    internal class MsSqlTableReader : IDisposable
+    internal class MsSqlTableReader : ITableReader
     {
         private bool disposedValue;
 
@@ -19,30 +20,27 @@ namespace PostreSQLMsSqlMigrationTool
 
         private string _connectionString;
 
-        private string _tableName;
-        IList<string> _colNames;
+        private int ColCount { get; set; }
 
-        public MsSqlTableReader(string connectionString, string tableName, IList<string> colNames)
+        public MsSqlTableReader(IConfiguration configuration)
         {
-            _connectionString = connectionString;
-            _tableName = tableName;
-            _colNames = colNames;
+            _connectionString = configuration.GetConnectionString("SourceDatabase");
         }
 
-        public void Open()
+        public void Open(string tableName, IList<string> colNames)
         {
+            ColCount = colNames.Count;
             _connection = new SqlConnection(_connectionString);
             _connection.Open();
-            string sql = GetSql();
+            string sql = GetSql(tableName, colNames);
             _sqlCommand = new SqlCommand(sql, _connection);
             _reader = _sqlCommand.ExecuteReader();
-            
         }
 
-        private string GetSql()
+        private string GetSql(string tableName, IList<string> colNames)
         {
-            string cols = string.Join(", ", _colNames);
-            return $"SELECT {cols} FROM {_tableName}";
+            string cols = string.Join(", ", colNames);
+            return $"SELECT {cols} FROM {tableName}";
         }
 
         public bool Read()
@@ -56,13 +54,13 @@ namespace PostreSQLMsSqlMigrationTool
 
         public IList<object?> GetValues()
         {
-            if(_reader == null)
+            if (_reader == null)
             {
                 throw new Exception("CaLL Open()  and Read() first");
-            }            
+            }
 
             IList<object?> values = new List<object?>();
-            for(int i = 0; i < _colNames.Count; i++)
+            for (int i = 0; i < ColCount; i++)
             {
                 if (!_reader.IsDBNull(i))
                 {
@@ -84,17 +82,17 @@ namespace PostreSQLMsSqlMigrationTool
             {
                 if (disposing)
                 {
-                    if(_reader != null)
+                    if (_reader != null)
                     {
-                        _reader.Close();
+                        _reader.Dispose();
                     }
-                    if(_sqlCommand != null)
+                    if (_sqlCommand != null)
                     {
                         _sqlCommand.Dispose();
                     }
-                    if(_connection != null)
+                    if (_connection != null)
                     {
-                        _connection.Close();
+                        _connection.Dispose();
                     }
                 }
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PostreSQLMsSqlMigrationTool
+namespace PostreSQLMsSqlMigrationTool.PostgreSql
 {
     internal class PostgreSqlTableWriter : IDisposable
     {
@@ -42,14 +42,14 @@ namespace PostreSQLMsSqlMigrationTool
 
         public void Write(IList<object?> values)
         {
-            if(_binaryImporter == null)
+            if (_binaryImporter == null)
             {
                 throw new Exception("call open first");
             }
             _binaryImporter.StartRow();
-            foreach(object? value in values)
+            foreach (object? value in values)
             {
-                if(value == null)
+                if (value == null)
                 {
                     _binaryImporter.WriteNull();
                 }
@@ -67,15 +67,15 @@ namespace PostreSQLMsSqlMigrationTool
             {
                 if (disposing)
                 {
-                   if(_binaryImporter != null)
-                   {
+                    if (_binaryImporter != null)
+                    {
                         _binaryImporter.Complete();
                         _binaryImporter.Close();
-                   }
-                   if(_connection  != null)
-                   {
+                    }
+                    if (_connection != null)
+                    {
                         _connection.Close();
-                   }
+                    }
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
