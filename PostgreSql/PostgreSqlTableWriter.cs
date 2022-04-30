@@ -17,6 +17,18 @@ namespace PostreSQLMsSqlMigrationTool.PostgreSql
         private NpgsqlConnection? _connection;
         private NpgsqlBinaryImporter? _binaryImporter;
 
+        private NpgsqlBinaryImporter BinaryImporter
+        {
+            get
+            {
+                if(_binaryImporter == null)
+                {
+                    throw new InvalidOperationException("Open() not called yet!");
+                }
+                return _binaryImporter;
+            }
+        }
+
 
         public PostgreSqlTableWriter(IConfiguration configuration)
         {
@@ -39,25 +51,21 @@ namespace PostreSQLMsSqlMigrationTool.PostgreSql
 
         public void Write(object?[] values)
         {
-            if (_binaryImporter == null)
-            {
-                throw new Exception("call open first");
-            }
-            _binaryImporter.StartRow();
+            BinaryImporter.StartRow();
             foreach (object? value in values)
             {
                 if (value == null)
                 {
-                    _binaryImporter.WriteNull();
+                    BinaryImporter.WriteNull();
                 }
                 else if (value is DateTimeOffset)
                 {
                     DateTimeOffset dateTimeOffset = (DateTimeOffset) value;
-                    _binaryImporter.Write(dateTimeOffset.ToUniversalTime());
+                    BinaryImporter.Write(dateTimeOffset.ToUniversalTime());
                 }
                 else
                 {
-                    _binaryImporter.Write(value);
+                    BinaryImporter.Write(value);
                 }
             }
 
@@ -72,11 +80,11 @@ namespace PostreSQLMsSqlMigrationTool.PostgreSql
                     if (_binaryImporter != null)
                     {
                         _binaryImporter.Complete();
-                        _binaryImporter.Close();
+                        _binaryImporter.Dispose();
                     }
                     if (_connection != null)
                     {
-                        _connection.Close();
+                        _connection.Dispose();
                     }
                 }
 

@@ -24,6 +24,18 @@ namespace PostreSQLMsSqlMigrationTool.MsSql
 
         private object?[]? _values;
 
+        private SqlDataReader Reader
+        {
+            get 
+            { 
+                if(_reader == null)
+                {
+                    throw new InvalidOperationException("Open() not called yet");
+                }
+                return _reader; 
+            }
+        }
+
         public MsSqlTableReader(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("SourceDatabase");
@@ -48,11 +60,7 @@ namespace PostreSQLMsSqlMigrationTool.MsSql
 
         public bool Read()
         {
-            if (_reader != null)
-            {
-                return _reader.Read();
-            }
-            throw new Exception("CaLL Open() first");
+            return Reader.Read();
         }
 
         public object?[] GetValues()

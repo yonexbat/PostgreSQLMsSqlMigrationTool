@@ -31,7 +31,7 @@ namespace PostreSQLMsSqlMigrationTool
 
         private void MigrateTable(MigrationItem migration)
         {
-            Log.StartMigrationItem(_logger, migration, default!);
+            Log.StartMigrationItem(_logger, migration.SourceTableName, migration.DestinationTableName, default!);
 
             using var tableReader = OpenNewTableReader(migration);
             using var tableWriter = OpenNewTableWriter(migration);
@@ -69,10 +69,10 @@ namespace PostreSQLMsSqlMigrationTool
 
         internal class Log
         {
-            static internal readonly Action<ILogger, MigrationItem, Exception> StartMigrationItem = LoggerMessage.Define<MigrationItem>(
+            static internal readonly Action<ILogger, string, string, Exception> StartMigrationItem = LoggerMessage.Define<string, string>(
               LogLevel.Information,
               new EventId(1, "Starting migration"),
-              "Starting migration {Item}");
+              "Starting migration from {from} to {to}");
 
             static internal readonly Action<ILogger, int, Exception> CountInfo = LoggerMessage.Define<int>(
               LogLevel.Information,
