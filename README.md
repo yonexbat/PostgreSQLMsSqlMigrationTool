@@ -146,4 +146,4 @@ Open file appsettings.json and set connection strings for SourceDatabase and Des
 Start the application.
 
 ### Step 6
-Create sql statements to transfer to data from the intermediate tables to the final tables.
+Create sql statements to transfer data from the intermediate tables to the final tables.
