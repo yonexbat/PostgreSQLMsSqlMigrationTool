@@ -49,8 +49,9 @@ namespace PostreSQLMsSqlMigrationTool
             tableReader.Open(migration.SourceTableName, colNames);
 
             List<string> colNamesDest = migration.ColMappings.Select(x => x.DestinationColName).ToList()!;
-            using var tableWriter = new PostgreSqlTableWriter(_targetConnectionString, migration.DestinationTableName, colNamesDest);
-            tableWriter.Open();
+
+            using var tableWriter = CreateTableWriter();
+            tableWriter.Open(migration.DestinationTableName, colNamesDest);
 
             while (tableReader.Read())
             {
@@ -62,6 +63,11 @@ namespace PostreSQLMsSqlMigrationTool
         private ITableReader CreateTableReader()
         {
             return _databaseReaderWriterFactory.CreateTableReader(_migrationOptions.SourceDbTech);
+        }
+
+        private ITableWriter CreateTableWriter()
+        {
+            return _databaseReaderWriterFactory.CreateTableWriter(_migrationOptions.DestinationDbTech);
         }
 
         internal class Log

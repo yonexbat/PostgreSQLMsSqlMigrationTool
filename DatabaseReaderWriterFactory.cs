@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PostreSQLMsSqlMigrationTool.MsSql;
+using PostreSQLMsSqlMigrationTool.PostgreSql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,11 +31,31 @@ namespace PostreSQLMsSqlMigrationTool
             }
 
             if (reader == null) {
-                throw new NotSupportedException($"{tech} not supported.");
+                throw new NotSupportedException($"DB-technology {tech} not supported.");
             }
 
             return reader;
-
         }
+
+        public ITableWriter CreateTableWriter(string tech)
+        {
+            ITableWriter? writer = null;
+
+            switch (tech)
+            {
+                case "pgsql":
+                    writer = _serviceProvider.GetService<PostgreSqlTableWriter>();
+                    break;
+
+            }
+
+            if (writer == null)
+            {
+                throw new NotSupportedException($"DB-technology {tech} not supported.");
+            }
+
+            return writer;
+        }
+
     }
 }

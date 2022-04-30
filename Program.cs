@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostreSQLMsSqlMigrationTool;
 using PostreSQLMsSqlMigrationTool.MsSql;
+using PostreSQLMsSqlMigrationTool.PostgreSql;
 
 Startup(args);
 return 0;
@@ -22,6 +23,7 @@ static void Startup(string[] args)
         .AddSingleton(provider => configuration)
         .AddSingleton(loggerFactory)
         .AddTransient<MsSqlTableReader>()
+        .AddTransient<PostgreSqlTableWriter>()
         .BuildServiceProvider();
 
     MigrationTool? tool = serviceProvider.GetService<MigrationTool>();

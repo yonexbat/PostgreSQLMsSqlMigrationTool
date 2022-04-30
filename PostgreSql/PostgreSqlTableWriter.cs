@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,40 +8,36 @@ using System.Threading.Tasks;
 
 namespace PostreSQLMsSqlMigrationTool.PostgreSql
 {
-    internal class PostgreSqlTableWriter : IDisposable
+    internal class PostgreSqlTableWriter : ITableWriter
     {
 
 
         private string _connectionString;
 
-        private string _tableName;
-        IList<string> _colNames;
         private NpgsqlConnection? _connection;
         private NpgsqlBinaryImporter? _binaryImporter;
 
 
-        public PostgreSqlTableWriter(string connectionString, string tableName, IList<string> colNames)
+        public PostgreSqlTableWriter(IConfiguration configuration)
         {
-            _connectionString = connectionString;
-            _tableName = tableName;
-            _colNames = colNames;
+            _connectionString = configuration.GetConnectionString("DestinationDatabase");
         }
 
 
         private bool disposedValue;
 
-        public void Open()
+        public void Open(string tableName, IList<string> colNames)
         {
             _connection = new NpgsqlConnection(_connectionString);
             _connection.Open();
 
-            string colNames = string.Join(", ", _colNames);
-            string bulkInsertSql = $"COPY {_tableName}({colNames}) from STDIN (format binary)";
+            string colNamesJoined = string.Join(", ", colNames);
+            string bulkInsertSql = $"COPY {tableName}({colNamesJoined}) from STDIN (format binary)";
             _binaryImporter = _connection.BeginBinaryImport(bulkInsertSql);
 
         }
 
-        public void Write(IList<object?> values)
+        public void Write(object?[] values)
         {
             if (_binaryImporter == null)
             {

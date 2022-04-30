@@ -22,6 +22,8 @@ namespace PostreSQLMsSqlMigrationTool.MsSql
 
         private int ColCount { get; set; }
 
+        private object?[]? _values;
+
         public MsSqlTableReader(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("SourceDatabase");
@@ -35,6 +37,7 @@ namespace PostreSQLMsSqlMigrationTool.MsSql
             string sql = GetSql(tableName, colNames);
             _sqlCommand = new SqlCommand(sql, _connection);
             _reader = _sqlCommand.ExecuteReader();
+            _values = new object?[ColCount];
         }
 
         private string GetSql(string tableName, IList<string> colNames)
@@ -52,26 +55,25 @@ namespace PostreSQLMsSqlMigrationTool.MsSql
             throw new Exception("CaLL Open() first");
         }
 
-        public IList<object?> GetValues()
+        public object?[] GetValues()
         {
-            if (_reader == null)
+            if (_reader == null || _values == null)
             {
-                throw new Exception("CaLL Open()  and Read() first");
+                throw new Exception("CaLL Open() and Read() first");
             }
 
-            IList<object?> values = new List<object?>();
             for (int i = 0; i < ColCount; i++)
             {
                 if (!_reader.IsDBNull(i))
                 {
-                    values.Add(_reader.GetValue(i));
+                    _values[i] = _reader.GetValue(i);
                 }
                 else
                 {
-                    values.Add(null);
+                    _values[i] = null;
                 }
             }
-            return values;
+            return _values;
         }
 
 

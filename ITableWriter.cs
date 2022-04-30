@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace PostreSQLMsSqlMigrationTool
 {
-    internal interface ITableReader : IDisposable
+    internal interface ITableWriter: IDisposable
     {
         void Open(string tableName, IList<string> colNames);
 
-        bool Read();
-
-        object?[] GetValues();
+        public void Write(object?[] values);
     }
 }
