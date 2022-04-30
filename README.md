@@ -1,7 +1,8 @@
 # PostreSQLMsSqlMigrationTool
+
 Another data migration tool. Currently migration from mssql to postresql is supported.
 
-The following mappings work from mssql to postgresql. 
+The following mappings work from mssql to postgresql.
 
 |MSSQL DATATYPE|POSTGRESQL DATATYPE|
 |--------------|-------------------|
@@ -13,57 +14,61 @@ The following mappings work from mssql to postgresql.
 |char(10)|character varying(10)|
 |smallint|smallint|
 
-
 ## Getting started
 
 ### Step 1
+
 Clone this repository and open it with an ide like viusal studio. net 6 or higher required.
 
 ### Step 2
+
 Create table in source database (mssql). Just for demonstartion purposes. You probably have already tables and data in the source database.
 
     CREATE TABLE [dbo].[SampleTable]
     (
-	    [Id] INT NOT NULL PRIMARY KEY,
-	    [SomeBit] BIT NULL, 
+        [Id] INT NOT NULL PRIMARY KEY,
+        [SomeBit] BIT NULL, 
         [SomeDate] DATETIME2 NULL, 
         [SomeTextVarchar] VARCHAR(50) NULL, 
         [SomeTextNVarchar] NVARCHAR(50) NULL, 
         [SomeTextChar] CHAR(10) NULL, 
-        [SomeSmallInt] SMALLINT NULL,	
+        [SomeSmallInt] SMALLINT NULL, 
     )
 
 Add some data to it.
+
     INSERT INTO dbo.SampleTable
     (
         [Id],
-	    [SomeBit], 
-        [SomeDate], 
-        [SomeTextVarchar], 
-        [SomeTextNVarchar], 
-        [SomeTextChar], 
+        [SomeBit],
+        [SomeDate],
+        [SomeTextVarchar],
+        [SomeTextNVarchar],
+        [SomeTextChar],
         [SomeSmallInt]
     )
-    VALUES 
+    VALUES
     (
         1,
-	    1, 
-        '2022-04-30', 
-        'HELLO', 
-        'World', 
-        '123abc', 
+        1,
+        '2022-04-30',
+        'HELLO',
+        'World',
+        '123abc',
         5
     ),
     (
         2,
-	    0, 
-        '2025-04-30', 
-        'HELLO', 
-        'World', 
-        '123abc', 
+        0,
+        '2025-04-30',
+        'HELLO',
+        'World',
+        '123abc',
         5
     )
-### Step 3 
+
+### Step 3
+
 Create simple intermediate tables in PostgreSQL.
     DROP TABLE IF EXISTS public.sampletable;
 
@@ -84,6 +89,7 @@ Create simple intermediate tables in PostgreSQL.
         OWNER to postgres;
 
 ### Step 4
+
 Open file appsettings.json and set connection strings for SourceDatabase and DestinationDatabase. Then add a migration-item for each table you want to migrate.
 
     {
@@ -137,3 +143,6 @@ Open file appsettings.json and set connection strings for SourceDatabase and Des
 
     ### Step 5
     Start the application.
+
+    ### Step 6
+    Create sql statements to transfer to data from the intermediate tables to the final tables.
