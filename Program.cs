@@ -23,6 +23,8 @@ static void Startup(string[] args)
         .AddSingleton(provider => configuration)
         .AddSingleton(loggerFactory)
         .AddTransient<MsSqlTableReader>()
+        .AddTransient<MsSqlTableWriter>()
+        .AddTransient<PostgreSqlTableReader>()
         .AddTransient<PostgreSqlTableWriter>()
         .BuildServiceProvider();
 

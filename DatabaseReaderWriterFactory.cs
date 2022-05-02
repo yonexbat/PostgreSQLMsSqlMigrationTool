@@ -27,7 +27,9 @@ namespace PostreSQLMsSqlMigrationTool
                 case "mssql":
                     reader = _serviceProvider.GetService<MsSqlTableReader>();
                     break;
-                
+                case "pgsql":
+                    reader = _serviceProvider.GetService<PostgreSqlTableReader>();
+                    break;
             }
 
             if (reader == null) {
@@ -45,6 +47,9 @@ namespace PostreSQLMsSqlMigrationTool
             {
                 case "pgsql":
                     writer = _serviceProvider.GetService<PostgreSqlTableWriter>();
+                    break;
+                case "mssql":
+                    writer = _serviceProvider.GetService<MsSqlTableWriter>();
                     break;
 
             }

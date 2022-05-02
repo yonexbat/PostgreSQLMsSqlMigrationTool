@@ -1,10 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PostreSQLMsSqlMigrationTool.PostgreSql
 {
@@ -16,6 +12,7 @@ namespace PostreSQLMsSqlMigrationTool.PostgreSql
 
         private NpgsqlConnection? _connection;
         private NpgsqlBinaryImporter? _binaryImporter;
+        private ILogger _logger;
 
         private NpgsqlBinaryImporter BinaryImporter
         {
@@ -30,9 +27,10 @@ namespace PostreSQLMsSqlMigrationTool.PostgreSql
         }
 
 
-        public PostgreSqlTableWriter(IConfiguration configuration)
+        public PostgreSqlTableWriter(IConfiguration configuration, ILogger<PostgreSqlTableWriter> logger)
         {
             _connectionString = configuration.GetConnectionString("DestinationDatabase");
+            _logger = logger;
         }
 
 
@@ -49,7 +47,7 @@ namespace PostreSQLMsSqlMigrationTool.PostgreSql
 
         }
 
-        public void Write(object?[] values)
+        private void Write(object?[] values)
         {
             BinaryImporter.StartRow();
             foreach (object? value in values)
@@ -100,6 +98,31 @@ namespace PostreSQLMsSqlMigrationTool.PostgreSql
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        public void WriteAll(ITableReader tableReader)
+        {
+            int counter = 0;
+
+            while (tableReader.Read())
+            {
+                counter++;
+                var values = tableReader.GetValues();
+                Write(values);
+                if (counter % 100 == 0)
+                {
+                    Log.CountInfo(_logger, counter, default!);
+                }
+            }
+            Log.CountInfo(_logger, counter, default!);
+        }
+
+        internal class Log
+        {
+            static internal readonly Action<ILogger, int, Exception> CountInfo = LoggerMessage.Define<int>(
+              LogLevel.Information,
+              new EventId(2, "Count Info"),
+              "Migrated {numrows} rows");
         }
     }
 }

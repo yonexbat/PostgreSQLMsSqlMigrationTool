@@ -10,6 +10,6 @@ namespace PostreSQLMsSqlMigrationTool
     {
         void Open(string tableName, IList<string> colNames);
 
-        public void Write(object?[] values);
+        public void WriteAll(ITableReader reader);
     }
 }

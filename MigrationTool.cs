@@ -36,19 +36,7 @@ namespace PostreSQLMsSqlMigrationTool
             using var tableReader = OpenNewTableReader(migration);
             using var tableWriter = OpenNewTableWriter(migration);
 
-            int counter = 0;
-
-            while (tableReader.Read())
-            {
-                counter++;
-                var values = tableReader.GetValues();
-                tableWriter.Write(values);
-                if(counter % 100 == 0)
-                {
-                    Log.CountInfo(_logger, counter, default!);
-                }
-            }
-            Log.CountInfo(_logger, counter, default!);
+            tableWriter.WriteAll(tableReader);
         }
 
         private ITableReader OpenNewTableReader(MigrationItem migration)
@@ -73,11 +61,6 @@ namespace PostreSQLMsSqlMigrationTool
               LogLevel.Information,
               new EventId(1, "Starting migration"),
               "Starting migration from {from} to {to}");
-
-            static internal readonly Action<ILogger, int, Exception> CountInfo = LoggerMessage.Define<int>(
-              LogLevel.Information,
-              new EventId(2, "Count Info"),
-              "Migrated {numrows} rows");
         }
     }
 }
