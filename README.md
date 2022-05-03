@@ -1,6 +1,6 @@
 # PostreSQLMsSqlMigrationTool
 
-Another data migration tool. Currently migration from *mssql* to *postresql* is supported.
+Another data migration tool. Currently migration from *mssql* to *postresql* and from *postresql* to *mssql* is supported.
 
 The following mappings work from mssql to postgresql.
 
@@ -13,12 +13,13 @@ The following mappings work from mssql to postgresql.
 |varchar(255)|character varying(255)|
 |char(10)|character varying(10)|
 |smallint|smallint|
+|bit|boolean|
 
 ## Getting started
 
 ### Step 1
 
-Clone this repository and open it with an ide like viusal studio. net 6 or higher required.
+Clone this repository and open it with an *ide* like viusal studio. net 6 or higher required.
 
 ### Step 2
 
@@ -84,14 +85,9 @@ Create simple intermediate tables in PostgreSQL. Keep the intermediate tables as
         somesmallint smallint
     )
 
-    TABLESPACE pg_default;
-
-    ALTER TABLE IF EXISTS public.sampletable
-        OWNER to postgres;
-
 ### Step 4
 
-Open file appsettings.json and set connection strings for SourceDatabase and DestinationDatabase. Then add a *migration-item* for each table you want to migrate.
+Open file *appsettings.json* and set connection strings for SourceDatabase and DestinationDatabase. Then add a *migration-item* for each table you want to migrate.
 
     {
       "ConnectionStrings": {
