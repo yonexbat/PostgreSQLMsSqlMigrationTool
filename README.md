@@ -1,19 +1,20 @@
-# PostreSQLMsSqlMigrationTool
+# PostgreSQLMsSqlMigrationTool
 
-Another data migration tool. Currently migration from *mssql* to *postresql* and from *postresql* to *mssql* is supported.
+Another data migration tool. Currently migration from *mssql* to *postresql* and from *postresql* to *mssql* is
+supported.
 
 The following mappings work from mssql to postgresql.
 
-|MSSQL DATATYPE|POSTGRESQL DATATYPE|
-|--------------|-------------------|
-|int|integer|
-|datetimeoffset(7)|timestamp with timezone|
-|datetimeoffset(7)|timestamp without timezone|
-|nvarchar(255)|character varying(255)|
-|varchar(255)|character varying(255)|
-|char(10)|character varying(10)|
-|smallint|smallint|
-|bit|boolean|
+| MSSQL DATATYPE    | POSTGRESQL DATATYPE        |
+|-------------------|----------------------------|
+| int               | integer                    |
+| datetimeoffset(7) | timestamp with timezone    |
+| datetimeoffset(7) | timestamp without timezone |
+| nvarchar(255)     | character varying(255)     |
+| varchar(255)      | character varying(255)     |
+| char(10)          | character varying(10)      |
+| smallint          | smallint                   |
+| bit               | boolean                    |
 
 ## Getting started
 
@@ -23,7 +24,8 @@ Clone this repository and open it with an *ide* like viusal studio. net 6 or hig
 
 ### Step 2
 
-Create table in source database (mssql). Just for demonstartion purposes. You probably have already tables and data in the source database.
+Create table in source database (mssql). Just for demonstartion purposes. You probably have already tables and data in
+the source database.
 
     CREATE TABLE [dbo].[SampleTable]
     (
@@ -87,7 +89,11 @@ Create simple intermediate tables in PostgreSQL. Keep the intermediate tables as
 
 ### Step 4
 
-Open file *appsettings.json* and set connection strings for SourceDatabase and DestinationDatabase. Then add a *migration-item* for each table you want to migrate.
+Go to project (folder) *Application*. Open file *appsettings.json* and set connection strings for SourceDatabase and DestinationDatabase. Then add a
+*migration-item* for each table you want to migrate. 
+
+> Note: add connection strings to user-secrets.
+
 
     {
       "ConnectionStrings": {
@@ -139,7 +145,9 @@ Open file *appsettings.json* and set connection strings for SourceDatabase and D
     }
 
 ### Step 5
+
 Start the application.
 
 ### Step 6
+
 Create sql statements to transfer data from the intermediate tables to the final tables.

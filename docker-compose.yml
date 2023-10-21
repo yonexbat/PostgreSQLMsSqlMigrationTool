@@ -1,0 +1,17 @@
+﻿services:
+  postgresqldatabase:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"    
+    environment:
+      POSTGRES_PASSWORD: example
+  mssqlserverdatabase:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: eXample4eX3+24234$+
+      
+    
