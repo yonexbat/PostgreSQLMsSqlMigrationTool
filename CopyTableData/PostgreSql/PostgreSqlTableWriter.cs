@@ -1,18 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace CopyTableData.PostgreSql;
 
 public class PostgreSqlTableWriter : ITableWriter
 {
-    private NpgsqlBinaryImporter? _binaryImporter;
-
-    private NpgsqlConnection? _connection;
 
 
     private readonly string _connectionString;
     private readonly ILogger _logger;
+    private NpgsqlBinaryImporter? _binaryImporter;
+    private NpgsqlConnection? _connection;
 
 
     private bool disposedValue;

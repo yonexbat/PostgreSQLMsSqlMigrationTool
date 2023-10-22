@@ -10,7 +10,7 @@ public class PostgreSqlFactory : IDatabaseSpecificFactory
     {
         _loggerFactory = loggerFactory;
     }
-    
+
     public ITableReader CreateTableReader(string connectionString)
     {
         return new PostgreSqlTableReader(connectionString);

@@ -1,13 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using Npgsql;
+﻿using Npgsql;
 
 namespace CopyTableData.PostgreSql;
 
 public class PostgreSqlTableReader : ITableReader
 {
-    private NpgsqlConnection? _connection;
 
     private readonly string _connectionString;
+    private NpgsqlConnection? _connection;
 
     private NpgsqlDataReader? _reader;
 

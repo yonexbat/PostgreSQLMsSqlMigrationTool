@@ -9,7 +9,7 @@ public class DatabaseReaderWriterFactory
     private readonly ConnectionStrings _connectionStrings;
     private readonly IDatabaseSpecificFactory _msSqlFactory;
     private readonly IDatabaseSpecificFactory _postgreSqlFactory;
-    
+
 
     public DatabaseReaderWriterFactory(ConnectionStrings connectionStrings, ILoggerFactory loggerFactory)
     {
@@ -26,7 +26,6 @@ public class DatabaseReaderWriterFactory
 
     public ITableWriter CreateTableWriter(string tech)
     {
-
         return GetFactory(tech).CreateTableWriter(_connectionStrings.DestinationDatabase);
     }
 

@@ -5,7 +5,7 @@ public class MsSqlFactory : IDatabaseSpecificFactory
 
     public ITableReader CreateTableReader(string connectionString)
     {
-        return new  MsSqlTableReader(connectionString);
+        return new MsSqlTableReader(connectionString);
     }
 
     public ITableWriter CreateTableWriter(string connectionString)

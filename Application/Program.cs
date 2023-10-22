@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CopyTableData;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using CopyTableData;
-using CopyTableData.MsSql;
-using CopyTableData.PostgreSql;
 
 Startup(args);
 return 0;

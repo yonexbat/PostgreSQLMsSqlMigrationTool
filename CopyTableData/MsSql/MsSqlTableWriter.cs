@@ -1,14 +1,13 @@
 ﻿using System.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
 namespace CopyTableData.MsSql;
 
 public class MsSqlTableWriter : ITableWriter
 {
     private readonly string _connectionString;
+    private bool _disposedValue;
     private int _fieldCount;
     private SqlBulkCopy? _sqlBulkCopy;
-    private bool disposedValue;
 
     public MsSqlTableWriter(string connectionString)
     {
@@ -47,7 +46,7 @@ public class MsSqlTableWriter : ITableWriter
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
                 if (_sqlBulkCopy != null)
@@ -56,9 +55,7 @@ public class MsSqlTableWriter : ITableWriter
                     disposable.Dispose();
                 }
 
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 }

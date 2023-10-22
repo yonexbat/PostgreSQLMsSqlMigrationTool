@@ -7,13 +7,13 @@ public class MsSqlTableReader : ITableReader
 
     private readonly string _connectionString;
     private SqlConnection? _connection;
+    private bool _disposedValue;
 
     private SqlDataReader? _reader;
 
     private SqlCommand? _sqlCommand;
 
     private object?[]? _values;
-    private bool _disposedValue;
 
     public MsSqlTableReader(string connectionString)
     {
@@ -49,13 +49,21 @@ public class MsSqlTableReader : ITableReader
 
     public object?[] GetValues()
     {
-        if (_reader == null || _values == null) throw new Exception("CaLL Open() and Read() first");
+        if (_reader == null || _values == null)
+        {
+            throw new Exception("CaLL Open() and Read() first");
+        }
 
         for (var i = 0; i < ColCount; i++)
             if (!_reader.IsDBNull(i))
+            {
                 _values[i] = _reader.GetValue(i);
+            }
             else
+            {
                 _values[i] = null;
+            }
+
         return _values;
     }
 

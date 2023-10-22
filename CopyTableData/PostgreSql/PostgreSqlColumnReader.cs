@@ -16,7 +16,7 @@ public class PostgreSqlColumnReader : IColumnReader
         var sql = $"SELECT \"column_name\" FROM information_schema.columns WHERE table_name = '{tableName}';";
         var command = new NpgsqlCommand(sql, connection);
         var reader = command.ExecuteReader();
-        
+
         var result = new List<string>();
         while (reader.Read())
         {

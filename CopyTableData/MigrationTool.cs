@@ -34,7 +34,7 @@ public class MigrationTool
         {
             CreateColMappingFromDbMetadata(migration);
         }
-        
+
         using var tableReader = OpenNewTableReader(migration);
         using var tableWriter = OpenNewTableWriter(migration);
 
@@ -45,7 +45,7 @@ public class MigrationTool
     {
         _logger.NoColMappingDefined();
         migration.ColMappings ??= new List<ColMapping>();
-        
+
         var colReaderSource = _databaseReaderWriterFactory.CreateColumnReader(_migrationOptions.SourceDbTech, true);
         var sourceCols = colReaderSource.GetColumnNames(migration.SourceTableName);
 
@@ -59,7 +59,7 @@ public class MigrationTool
                 .FirstOrDefault(dc => sourceCol.Equals(dc, StringComparison.OrdinalIgnoreCase));
             if (destinationCol != null)
             {
-                ColMapping colMapping = new ColMapping()
+                var colMapping = new ColMapping
                 {
                     SourceColName = sourceCol,
                     DestinationColName = destinationCol,
@@ -75,7 +75,7 @@ public class MigrationTool
         {
             throw new ArgumentException("ColMappings must not be null or empty here");
         }
-        
+
         List<string> colNames = migration.ColMappings.Select(x => x.SourceColName).ToList()!;
         var reader = _databaseReaderWriterFactory.CreateTableReader(_migrationOptions.SourceDbTech);
         reader.Open(migration.SourceTableName, colNames);
@@ -88,6 +88,7 @@ public class MigrationTool
         {
             throw new ArgumentException("ColMappings must not be null or empty here");
         }
+
         List<string> colNamesDest = migration.ColMappings.Select(x => x.DestinationColName).ToList()!;
         var writer = _databaseReaderWriterFactory.CreateTableWriter(_migrationOptions.DestinationDbTech);
         writer.Open(migration.DestinationTableName, colNamesDest);

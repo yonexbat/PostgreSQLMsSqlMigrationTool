@@ -13,8 +13,9 @@ public class MsSqlColumnReader : IColumnReader
     {
         using var connection = new SqlConnection(_connectionString);
         connection.Open();
-        var sql = $"SELECT column_name FROM INFORMATION_SCHEMA.Columns where TABLE_NAME = '{tableName}'";
+        var sql = "SELECT column_name FROM INFORMATION_SCHEMA.Columns where TABLE_NAME = @tableName";
         var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@tableName", tableName);
         var reader = command.ExecuteReader();
 
         var result = new List<string>();
