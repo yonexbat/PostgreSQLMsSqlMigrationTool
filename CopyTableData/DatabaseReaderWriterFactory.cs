@@ -7,66 +7,45 @@ namespace CopyTableData;
 public class DatabaseReaderWriterFactory
 {
     private readonly ConnectionStrings _connectionStrings;
-    private readonly ILoggerFactory _loggerFactory;
+    private readonly IDatabaseSpecificFactory _msSqlFactory;
+    private readonly IDatabaseSpecificFactory _postgreSqlFactory;
+    
 
     public DatabaseReaderWriterFactory(ConnectionStrings connectionStrings, ILoggerFactory loggerFactory)
     {
-        _loggerFactory = loggerFactory;
         _connectionStrings = connectionStrings;
+        _msSqlFactory = new MsSqlFactory();
+        _postgreSqlFactory = new PostgreSqlFactory(loggerFactory);
     }
 
 
     public ITableReader CreateTableReader(string tech)
     {
-        ITableReader? reader = null;
-        switch (tech)
-        {
-            case "mssql":
-                reader = new MsSqlTableReader(_connectionStrings.SourceDatabase);
-                break;
-            case "pgsql":
-                reader = new PostgreSqlTableReader(_connectionStrings.SourceDatabase);
-                break;
-        }
-
-        if (reader == null) throw new NotSupportedException($"DB-technology {tech} not supported.");
-
-        return reader;
+        return GetFactory(tech).CreateTableReader(_connectionStrings.SourceDatabase);
     }
 
     public ITableWriter CreateTableWriter(string tech)
     {
-        ITableWriter? writer = null;
-        switch (tech)
-        {
-            case "pgsql":
-                writer = new PostgreSqlTableWriter(_connectionStrings.DestinationDatabase, _loggerFactory.CreateLogger<PostgreSqlTableWriter>());
-                break;
-            case "mssql":
-                writer = new MsSqlTableWriter(_connectionStrings.DestinationDatabase);
-                break;
-        }
 
-        if (writer == null) throw new NotSupportedException($"DB-technology {tech} not supported.");
-
-        return writer;
+        return GetFactory(tech).CreateTableWriter(_connectionStrings.DestinationDatabase);
     }
 
     public IColumnReader CreateColumnReader(string tech, bool isSource)
     {
-        IColumnReader? reader = null;
         var connectionString = isSource ? _connectionStrings.SourceDatabase : _connectionStrings.DestinationDatabase;
+        return GetFactory(tech).CreateColumnReader(connectionString);
+    }
+
+    private IDatabaseSpecificFactory GetFactory(string tech)
+    {
         switch (tech)
         {
             case "mssql":
-                reader = new MsSqlColumnReader(connectionString);
-                break;
+                return _msSqlFactory;
             case "pgsql":
-                reader = new PostgreSqlColumnReader(connectionString);
-                break;            
+                return _postgreSqlFactory;
+            default:
+                throw new NotSupportedException($"DB-technology {tech} not supported.");
         }
-
-        if (reader == null) throw new NotSupportedException($"DB-technology {tech} not supported.");
-        return reader;
     }
 }

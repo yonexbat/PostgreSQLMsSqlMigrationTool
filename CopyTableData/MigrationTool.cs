@@ -93,31 +93,20 @@ public class MigrationTool
         writer.Open(migration.DestinationTableName, colNamesDest);
         return writer;
     }
-
-  
 }
 
-internal static class Log
+public static partial class Log
 {
-    public static void StartMigrationItem(this ILogger logger, string from , string to)
-    {
-        _startMigrationItem(logger, from, to, default!);
-    }
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Information,
+        Message = "Starting migration from table {from} to table {to}")]
+    public static partial void StartMigrationItem(this ILogger logger, string from, string to);
 
-    public static void NoColMappingDefined(this ILogger logger)
-    {
-        _noColMappingDefined(logger, default!);
-    }
-        
-    internal static readonly Action<ILogger, string, string, Exception> _startMigrationItem =
-        LoggerMessage.Define<string, string>(
-            LogLevel.Information,
-            new EventId(1, nameof(StartMigrationItem)),
-            "Starting migration from {from} to {to}");
-        
-    internal static readonly Action<ILogger, Exception> _noColMappingDefined =
-        LoggerMessage.Define(
-            LogLevel.Information,
-            new EventId(2, nameof(NoColMappingDefined)),
-            "No col mapping defined for migration. Will lookup metadata in db.");        
+    [LoggerMessage(
+        EventId = 2,
+        EventName = nameof(NoColMappingDefined),
+        Level = LogLevel.Information,
+        Message = "No col mapping defined for migration. Will lookup metadata in db and create col mapping.")]
+    public static partial void NoColMappingDefined(this ILogger logger);
 }
