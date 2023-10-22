@@ -51,4 +51,22 @@ public class DatabaseReaderWriterFactory
 
         return writer;
     }
+
+    public IColumnReader CreateColumnReader(string tech, bool isSource)
+    {
+        IColumnReader? reader = null;
+        var connectionString = isSource ? _connectionStrings.SourceDatabase : _connectionStrings.DestinationDatabase;
+        switch (tech)
+        {
+            case "mssql":
+                reader = new MsSqlColumnReader(connectionString);
+                break;
+            case "pgsql":
+                reader = new PostgreSqlColumnReader(connectionString);
+                break;            
+        }
+
+        if (reader == null) throw new NotSupportedException($"DB-technology {tech} not supported.");
+        return reader;
+    }
 }

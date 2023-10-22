@@ -20,21 +20,62 @@ public class MigrationTool
 
     public void Migrate()
     {
-        foreach (var migration in _migrationOptions.MigrationItems) MigrateTable(migration);
+        foreach (var migration in _migrationOptions.MigrationItems)
+        {
+            MigrateTable(migration);
+        }
     }
 
     private void MigrateTable(MigrationItem migration)
     {
-        Log.StartMigrationItem(_logger, migration.SourceTableName, migration.DestinationTableName, default!);
+        _logger.StartMigrationItem(migration.SourceTableName, migration.DestinationTableName);
 
+        if (migration.ColMappings == null || !migration.ColMappings.Any())
+        {
+            CreateColMappingFromDbMetadata(migration);
+        }
+        
         using var tableReader = OpenNewTableReader(migration);
         using var tableWriter = OpenNewTableWriter(migration);
 
         tableWriter.WriteAll(tableReader);
     }
 
+    private void CreateColMappingFromDbMetadata(MigrationItem migration)
+    {
+        _logger.NoColMappingDefined();
+        migration.ColMappings ??= new List<ColMapping>();
+        
+        var colReaderSource = _databaseReaderWriterFactory.CreateColumnReader(_migrationOptions.SourceDbTech, true);
+        var sourceCols = colReaderSource.GetColumnNames(migration.SourceTableName);
+
+        var colReaderDestination =
+            _databaseReaderWriterFactory.CreateColumnReader(_migrationOptions.DestinationDbTech, false);
+        var destinationCols = colReaderDestination.GetColumnNames(migration.DestinationTableName);
+
+        foreach (var sourceCol in sourceCols)
+        {
+            var destinationCol = destinationCols
+                .FirstOrDefault(dc => sourceCol.Equals(dc, StringComparison.OrdinalIgnoreCase));
+            if (destinationCol != null)
+            {
+                ColMapping colMapping = new ColMapping()
+                {
+                    SourceColName = sourceCol,
+                    DestinationColName = destinationCol,
+                };
+                migration.ColMappings.Add(colMapping);
+            }
+        }
+    }
+
     private ITableReader OpenNewTableReader(MigrationItem migration)
     {
+        if (migration.ColMappings == null || !migration.ColMappings.Any())
+        {
+            throw new ArgumentException("ColMappings must not be null or empty here");
+        }
+        
         List<string> colNames = migration.ColMappings.Select(x => x.SourceColName).ToList()!;
         var reader = _databaseReaderWriterFactory.CreateTableReader(_migrationOptions.SourceDbTech);
         reader.Open(migration.SourceTableName, colNames);
@@ -43,18 +84,40 @@ public class MigrationTool
 
     private ITableWriter OpenNewTableWriter(MigrationItem migration)
     {
+        if (migration.ColMappings == null || !migration.ColMappings.Any())
+        {
+            throw new ArgumentException("ColMappings must not be null or empty here");
+        }
         List<string> colNamesDest = migration.ColMappings.Select(x => x.DestinationColName).ToList()!;
         var writer = _databaseReaderWriterFactory.CreateTableWriter(_migrationOptions.DestinationDbTech);
         writer.Open(migration.DestinationTableName, colNamesDest);
         return writer;
     }
 
-    internal class Log
+  
+}
+
+internal static class Log
+{
+    public static void StartMigrationItem(this ILogger logger, string from , string to)
     {
-        internal static readonly Action<ILogger, string, string, Exception> StartMigrationItem =
-            LoggerMessage.Define<string, string>(
-                LogLevel.Information,
-                new EventId(1, "Starting migration"),
-                "Starting migration from {from} to {to}");
+        _startMigrationItem(logger, from, to, default!);
     }
+
+    public static void NoColMappingDefined(this ILogger logger)
+    {
+        _noColMappingDefined(logger, default!);
+    }
+        
+    internal static readonly Action<ILogger, string, string, Exception> _startMigrationItem =
+        LoggerMessage.Define<string, string>(
+            LogLevel.Information,
+            new EventId(1, nameof(StartMigrationItem)),
+            "Starting migration from {from} to {to}");
+        
+    internal static readonly Action<ILogger, Exception> _noColMappingDefined =
+        LoggerMessage.Define(
+            LogLevel.Information,
+            new EventId(2, nameof(NoColMappingDefined)),
+            "No col mapping defined for migration. Will lookup metadata in db.");        
 }

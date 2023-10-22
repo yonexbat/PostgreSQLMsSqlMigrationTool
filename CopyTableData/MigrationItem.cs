@@ -6,5 +6,5 @@ public class MigrationItem
 
     public string DestinationTableName { get; set; } = string.Empty;
 
-    public IList<ColMapping> ColMappings { get; set; } = new List<ColMapping>();
+    public IList<ColMapping>? ColMappings { get; set; } = new List<ColMapping>();
 }

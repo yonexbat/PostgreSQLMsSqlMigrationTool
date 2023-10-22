@@ -2,8 +2,6 @@
 
 using CopyTableData;
 
-Console.WriteLine("Hello, World!");
-
 var connectionStrings = new ConnectionStrings("Server=localhost;Database=sample;User Id=SA;Password=eXample4eX3+24234$+;",
     "User ID=postgres;Password=example;Host=localhost;Port=5432;Database=postgres;");
 
@@ -17,45 +15,7 @@ var options = new MigrationOptions()
         new() 
         {
             SourceTableName = "SampleTable",
-            DestinationTableName = "sampletable",
-            ColMappings = new List<ColMapping>()
-            {
-                new()
-                {
-                    SourceColName = "Id",
-                    DestinationColName = "id",
-                },
-                new()
-                {
-                    SourceColName = "SomeBit",
-                    DestinationColName = "somebit",
-                },
-                new()
-                {
-                    SourceColName = "SomeDate",
-                    DestinationColName = "somedate",
-                },
-                new()
-                {
-                    SourceColName = "SomeTextVarchar",
-                    DestinationColName = "sometextvarchar",
-                },
-                new()
-                {
-                    SourceColName = "SomeTextNVarchar",
-                    DestinationColName = "sometextnvarchar",
-                },
-                new()
-                {
-                    SourceColName = "SomeTextChar",
-                    DestinationColName = "sometextchar",
-                },
-                new()
-                {
-                    SourceColName = "SomeSmallInt",
-                    DestinationColName = "somesmallint",
-                },
-            }
+            DestinationTableName = "sampletable"
         }
     }
 };

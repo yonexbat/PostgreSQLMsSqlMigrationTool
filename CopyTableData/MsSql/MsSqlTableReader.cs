@@ -1,20 +1,19 @@
 ﻿using System.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
 namespace CopyTableData.MsSql;
 
 public class MsSqlTableReader : ITableReader
 {
-    private SqlConnection? _connection;
 
     private readonly string _connectionString;
+    private SqlConnection? _connection;
 
     private SqlDataReader? _reader;
 
     private SqlCommand? _sqlCommand;
 
     private object?[]? _values;
-    private bool disposedValue;
+    private bool _disposedValue;
 
     public MsSqlTableReader(string connectionString)
     {
@@ -77,7 +76,7 @@ public class MsSqlTableReader : ITableReader
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
@@ -88,7 +87,7 @@ public class MsSqlTableReader : ITableReader
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
             // TODO: set large fields to null
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 }
