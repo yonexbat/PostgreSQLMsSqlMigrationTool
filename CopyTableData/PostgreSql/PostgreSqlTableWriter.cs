@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CopyTableData.PostgreSql.Mappers;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
@@ -6,16 +6,16 @@ namespace CopyTableData.PostgreSql;
 
 public class PostgreSqlTableWriter : ITableWriter
 {
-    private NpgsqlBinaryImporter? _binaryImporter;
-
-    private NpgsqlConnection? _connection;
 
 
     private readonly string _connectionString;
     private readonly ILogger _logger;
+    private NpgsqlBinaryImporter? _binaryImporter;
+    private NpgsqlConnection? _connection;
+    private Dictionary<int, IMapper> _mappers = new Dictionary<int, IMapper>();
 
 
-    private bool disposedValue;
+    private bool _disposedValue;
 
 
     public PostgreSqlTableWriter(string connectionString, ILogger<PostgreSqlTableWriter> logger)
@@ -33,14 +33,23 @@ public class PostgreSqlTableWriter : ITableWriter
         }
     }
 
-    public void Open(string tableName, IList<string> colNames)
+    private void Open(string tableName, IList<string> colNames)
     {
         _connection = new NpgsqlConnection(_connectionString);
         _connection.Open();
 
+        colNames = colNames.Select(x => $"\"{x}\"").ToList();
+
         var colNamesJoined = string.Join(", ", colNames);
-        var bulkInsertSql = $"COPY {tableName}({colNamesJoined}) from STDIN (format binary)";
+        var bulkInsertSql = $"COPY \"{tableName}\"({colNamesJoined}) from STDIN (format binary)";
         _binaryImporter = _connection.BeginBinaryImport(bulkInsertSql);
+    }
+
+    public void Open(string tableName, IList<DataBaseColMapping> columns)
+    {
+        CreateMappers(columns);
+        var colNames = columns.Select(x => x.DestinationColName).ToList();
+        Open(tableName, colNames);
     }
 
 
@@ -59,12 +68,41 @@ public class PostgreSqlTableWriter : ITableWriter
         {
             counter++;
             var values = tableReader.GetValues();
+            values = MapValues(values);
             Write(values);
             if (counter % 100 == 0) Log.CountInfo(_logger, counter, default!);
         }
 
         Log.CountInfo(_logger, counter, default!);
     }
+    
+    private object?[] MapValues(object?[] values)
+    {
+        foreach (var mapEntry in _mappers)
+        {
+            int index = mapEntry.Key;
+            object? value = values[index];
+            IMapper mapper = mapEntry.Value;
+            values[index] = mapper.Convert(value);
+        }
+
+        return values;
+    }
+
+    private void CreateMappers(IList<DataBaseColMapping> columns)
+    {
+        for (int i = 0; i < columns.Count; i++)
+        {
+            DataBaseColMapping mapping = columns[i];
+            switch (mapping.DestinationColType)
+            {
+                case "date":
+                    _mappers[i] = new DateTimeToDateMapper();
+                    break;
+            }
+        }
+    }
+    
 
     private void Write(object?[] values)
     {
@@ -87,7 +125,7 @@ public class PostgreSqlTableWriter : ITableWriter
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
@@ -102,7 +140,7 @@ public class PostgreSqlTableWriter : ITableWriter
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
             // TODO: set large fields to null
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 

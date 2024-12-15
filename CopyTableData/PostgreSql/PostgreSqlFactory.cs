@@ -10,7 +10,7 @@ public class PostgreSqlFactory : IDatabaseSpecificFactory
     {
         _loggerFactory = loggerFactory;
     }
-    
+
     public ITableReader CreateTableReader(string connectionString)
     {
         return new PostgreSqlTableReader(connectionString);
@@ -24,5 +24,10 @@ public class PostgreSqlFactory : IDatabaseSpecificFactory
     public IColumnReader CreateColumnReader(string connectionString)
     {
         return new PostgreSqlColumnReader(connectionString);
+    }
+
+    public IScriptExecutor CreateScriptExecutor(string connectionString)
+    {
+        return new PostgreSqlScriptExecutor(connectionString);
     }
 }

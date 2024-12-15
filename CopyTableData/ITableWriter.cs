@@ -2,7 +2,7 @@
 
 public interface ITableWriter : IDisposable
 {
-    void Open(string tableName, IList<string> colNames);
+    void Open(string tableName, IList<DataBaseColMapping> columns);
 
     public void WriteAll(ITableReader reader);
 }

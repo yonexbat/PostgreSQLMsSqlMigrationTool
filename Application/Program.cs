@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CopyTableData;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using CopyTableData;
-using CopyTableData.MsSql;
-using CopyTableData.PostgreSql;
 
 Startup(args);
 return 0;
@@ -14,7 +12,7 @@ static void Startup(string[] args)
     var configuration = GetConfiguration(args);
     var connectionStringSource = configuration.GetConnectionString("SourceDatabase");
     var connectionStringDestination = configuration.GetConnectionString("DestinationDatabase");
-    var connectionStrings = new ConnectionStrings(connectionStringSource, connectionStringDestination);
+    var connectionStrings = new ConnectionStrings(connectionStringSource!, connectionStringDestination!);
     var migrationOptions = new MigrationOptions();
     configuration.GetSection(MigrationOptions.Migration).Bind(migrationOptions);
 

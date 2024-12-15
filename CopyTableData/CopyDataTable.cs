@@ -8,7 +8,7 @@ public static class CopyDataTable
     {
         var loggerFactory = LoggerFactory.Create(loggerBuilder => loggerBuilder.AddConsole());
         var readerWriterFactory = new DatabaseReaderWriterFactory(connectionStrings, loggerFactory);
-        MigrationTool migrationTool = new MigrationTool(migrationOptions, readerWriterFactory, loggerFactory);
+        var migrationTool = new MigrationTool(migrationOptions, readerWriterFactory, loggerFactory);
         migrationTool.Migrate();
     }
 }

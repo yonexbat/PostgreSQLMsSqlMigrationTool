@@ -1,30 +1,33 @@
 # PostgreSQLMsSqlMigrationTool
 
-Another data migration tool. Currently migration from *mssql* to *postresql* and from *postresql* to *mssql* is
+Another data migration tool. Migration from *mssql* to *postresql* and from *postresql* to *mssql* is
 supported.
 
-The following mappings work from mssql to postgresql.
+The following mappings work from mssql to postgresql. Other mappings will probably work too, but are not tested.
 
 | MSSQL DATATYPE    | POSTGRESQL DATATYPE        |
 |-------------------|----------------------------|
 | int               | integer                    |
 | datetimeoffset(7) | timestamp with timezone    |
 | datetimeoffset(7) | timestamp without timezone |
-| nvarchar(255)     | character varying(255)     |
-| varchar(255)      | character varying(255)     |
-| char(10)          | character varying(10)      |
+| datetimeoffset(7) | date                       |
+| nvarchar(*)       | character varying(*)       |
+| varchar(*)        | character varying(*)       |
+| char(*)           | character varying(*)       |
+| varchar(*)        | text                       |
 | smallint          | smallint                   |
 | bit               | boolean                    |
+| varbinary         | bytea                      |
 
 ## Getting started
 
 ### Step 1
 
-Clone this repository and open it with an *ide* like viusal studio. net 6 or higher required.
+Clone this repository and open it with an *ide* like viusal studio or rider.
 
 ### Step 2
 
-Create table in source database (mssql). Just for demonstartion purposes. You probably have already tables and data in
+Create table in source database (mssql). Just for demonstration purposes. You probably have already tables and data in
 the source database.
 
     CREATE TABLE [dbo].[SampleTable]
@@ -72,7 +75,8 @@ Add some data to it.
 
 ### Step 3
 
-Create simple intermediate tables in PostgreSQL. Keep the intermediate tables as simple as possible.
+Create simple intermediate tables in PostgreSQL. The intermediate tables should be more or less identical to the source
+tables.
 
     DROP TABLE IF EXISTS public.sampletable;
 
@@ -90,10 +94,31 @@ Create simple intermediate tables in PostgreSQL. Keep the intermediate tables as
 ### Step 4
 
 Go to project (folder) *Application*. Open file *appsettings.json* and set connection strings for SourceDatabase and DestinationDatabase. Then add a
-*migration-item* for each table you want to migrate. 
+*migration-item* for each table you want to migrate. If the col-mappings are not set, the tool will try to map the columns. The names have to be identical (case-insensitive). 
+The order of the columns is not important. The tool will try to map the columns by name. If the column names are different, you have to set the col-mappings.
+
+    {
+      "ConnectionStrings": {
+        "SourceDatabase": "Server=tcp:someval.database.windows.net,1433;Initial Catalog=somedb;Persist Security Info=False;User ID=someuser;Password=SomePW;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+        "DestinationDatabase": "Host=auroraclustername.cluster-something.eu-central-1.rds.amazonaws.com;Username=postgres;Password=something;Database=somedb"
+      },
+
+      "Migration": {
+        "Name": "Migrate employee application",
+        "SourceDbTech": "mssql",
+        "DestinationDbTech":  "pgsql",
+        "MigrationItems": [
+          {
+            "SourceTableName": "SampleTable",
+            "DestinationTableName": "sampletable"
+          }
+        ]
+      }
+    }
 
 > Note: add connection strings to user-secrets.
 
+Here a sample with col-mappings:
 
     {
       "ConnectionStrings": {

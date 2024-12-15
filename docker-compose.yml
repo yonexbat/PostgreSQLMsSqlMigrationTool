@@ -1,11 +1,13 @@
 ﻿services:
+  # connection string for this db is: User ID=postgres;Password=example;Host=localhost;Port=5432;Database=sample;
   postgresqldatabase:
     image: postgres
     restart: always
     ports:
       - "5432:5432"    
     environment:
-      POSTGRES_PASSWORD: example
+      POSTGRES_PASSWORD: example #UserId is postgres
+  # connection string for this db is: Server=localhost;Database=sample;User Id=SA;Password=eXample4eX3+24234$+;TrustServerCertificate=Yes      
   mssqlserverdatabase:
     image: mcr.microsoft.com/mssql/server:2022-latest
     restart: always
@@ -13,6 +15,6 @@
       - "1433:1433"
     environment:
       ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: eXample4eX3+24234$+
+      MSSQL_SA_PASSWORD: eXample4eX3+24234$+ #UserId is SA
       
     

@@ -9,6 +9,10 @@ public class MigrationOptions
     public string SourceDbTech { get; set; } = string.Empty;
 
     public string DestinationDbTech { get; set; } = string.Empty;
+    
+    public string DestinationPreScript { get; set; } = string.Empty;
+    
+    public string DestinationPostScript { get; set; } = string.Empty;
 
     public IList<MigrationItem> MigrationItems { get; set; } = new List<MigrationItem>();
 }

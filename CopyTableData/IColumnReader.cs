@@ -2,5 +2,5 @@ namespace CopyTableData;
 
 public interface IColumnReader
 {
-    IList<string> GetColumnNames(string tableName);
+    IList<DataBaseCol> GetDataBaseCols(string tableName);
 }

@@ -5,21 +5,19 @@ using CopyTableData;
 var connectionStrings = new ConnectionStrings("Server=localhost;Database=sample;User Id=SA;Password=eXample4eX3+24234$+;",
     "User ID=postgres;Password=example;Host=localhost;Port=5432;Database=postgres;");
 
-var options = new MigrationOptions()
+var options = new MigrationOptions
 {
     Name = "Migrate employee application",
     SourceDbTech = "mssql",
     DestinationDbTech = "pgsql",
-    MigrationItems = new List<MigrationItem>()
+    MigrationItems = new List<MigrationItem>
     {
-        new() 
+        new()
         {
             SourceTableName = "SampleTable",
-            DestinationTableName = "sampletable"
-        }
-    }
+            DestinationTableName = "sampletable",
+        },
+    },
 };
 
 CopyDataTable.CopyTables(connectionStrings, options);
-    
-    
