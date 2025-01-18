@@ -20,24 +20,31 @@ public class MigrationTool
 
     public void Migrate()
     {
-        if (!string.IsNullOrWhiteSpace(_migrationOptions.DestinationPreScript))
-        {
-            _logger.ExecutingDestinationScript(_migrationOptions.DestinationPreScript);
-            var reader = _databaseReaderWriterFactory.CreateScriptExecutor(_migrationOptions.DestinationDbTech);
-            reader.ExecuteScript(_migrationOptions.DestinationPreScript);
-        }
-        
+        ExecuteScripts(_migrationOptions.PreScripts);
         foreach (var migration in _migrationOptions.MigrationItems)
         {
             MigrateTable(migration);
         }
-        
-        if (!string.IsNullOrWhiteSpace(_migrationOptions.DestinationPostScript))
+        ExecuteScripts(_migrationOptions.PostScripts);
+    }
+
+    private void ExecuteScripts(IList<string> scripts)
+    {
+        foreach (var script in scripts)
         {
-            _logger.ExecutingDestinationScript(_migrationOptions.DestinationPreScript);
-            var reader = _databaseReaderWriterFactory.CreateScriptExecutor(_migrationOptions.DestinationDbTech);
-            reader.ExecuteScript(_migrationOptions.DestinationPostScript);
+            ExecuteScript(script);    
         }
+    }
+
+    private void ExecuteScript(string path)
+    {
+        _logger.LoadingScript(path);
+        using StreamReader reader = new(path);
+        // Read the stream as a string.
+        string sql = reader.ReadToEnd();
+        _logger.ExecutingScript(sql);
+        var executor = this._databaseReaderWriterFactory.CreateScriptExecutor(_migrationOptions.DestinationDbTech);
+        executor.ExecuteScript(sql);
     }
 
     private void MigrateTable(MigrationItem migration)
@@ -129,8 +136,15 @@ public static partial class Log
     
     [LoggerMessage(
         EventId = 3,
-        EventName = nameof(ExecutingDestinationScript),
+        EventName = nameof(ExecutingScript),
         Level = LogLevel.Information,
         Message = "Executing SQL on destination database: {script}")]
-    public static partial void ExecutingDestinationScript(this ILogger logger, string script);    
+    public static partial void ExecutingScript(this ILogger logger, string script);    
+    
+    [LoggerMessage(
+        EventId = 4,
+        EventName = nameof(LoadingScript),
+        Level = LogLevel.Information,
+        Message = "Loading script {path}")]
+    public static partial void LoadingScript(this ILogger logger, string path);    
 }
