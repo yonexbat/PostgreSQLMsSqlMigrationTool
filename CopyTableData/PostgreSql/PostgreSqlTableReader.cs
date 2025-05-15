@@ -69,8 +69,9 @@ public class PostgreSqlTableReader : ITableReader
 
     private string GetSql(string tableName, IList<string> colNames)
     {
+        colNames = colNames.Select(colName => $"\"{colName}\"").ToList();
         var cols = string.Join(", ", colNames);
-        return $"SELECT {cols} FROM {tableName}";
+        return $"SELECT {cols} FROM \"{tableName}\"";
     }
 
 
