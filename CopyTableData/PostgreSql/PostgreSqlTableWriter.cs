@@ -10,9 +10,9 @@ public class PostgreSqlTableWriter : ITableWriter
 
     private readonly string _connectionString;
     private readonly ILogger _logger;
+    private readonly Dictionary<int, IMapper> _mappers = new();
     private NpgsqlBinaryImporter? _binaryImporter;
     private NpgsqlConnection? _connection;
-    private Dictionary<int, IMapper> _mappers = new Dictionary<int, IMapper>();
 
 
     private bool _disposedValue;
@@ -31,18 +31,6 @@ public class PostgreSqlTableWriter : ITableWriter
             if (_binaryImporter == null) throw new InvalidOperationException("Open() not called yet!");
             return _binaryImporter;
         }
-    }
-
-    private void Open(string tableName, IList<string> colNames)
-    {
-        _connection = new NpgsqlConnection(_connectionString);
-        _connection.Open();
-
-        colNames = colNames.Select(x => $"\"{x}\"").ToList();
-
-        var colNamesJoined = string.Join(", ", colNames);
-        var bulkInsertSql = $"COPY \"{tableName}\"({colNamesJoined}) from STDIN (format binary)";
-        _binaryImporter = _connection.BeginBinaryImport(bulkInsertSql);
     }
 
     public void Open(string tableName, IList<DataBaseColMapping> columns)
@@ -75,14 +63,26 @@ public class PostgreSqlTableWriter : ITableWriter
 
         Log.CountInfo(_logger, counter, default!);
     }
-    
+
+    private void Open(string tableName, IList<string> colNames)
+    {
+        _connection = new NpgsqlConnection(_connectionString);
+        _connection.Open();
+
+        colNames = colNames.Select(x => $"\"{x}\"").ToList();
+
+        var colNamesJoined = string.Join(", ", colNames);
+        var bulkInsertSql = $"COPY \"{tableName}\"({colNamesJoined}) from STDIN (format binary)";
+        _binaryImporter = _connection.BeginBinaryImport(bulkInsertSql);
+    }
+
     private object?[] MapValues(object?[] values)
     {
         foreach (var mapEntry in _mappers)
         {
-            int index = mapEntry.Key;
-            object? value = values[index];
-            IMapper mapper = mapEntry.Value;
+            var index = mapEntry.Key;
+            var value = values[index];
+            var mapper = mapEntry.Value;
             values[index] = mapper.Convert(value);
         }
 
@@ -91,9 +91,9 @@ public class PostgreSqlTableWriter : ITableWriter
 
     private void CreateMappers(IList<DataBaseColMapping> columns)
     {
-        for (int i = 0; i < columns.Count; i++)
+        for (var i = 0; i < columns.Count; i++)
         {
-            DataBaseColMapping mapping = columns[i];
+            var mapping = columns[i];
             switch (mapping.DestinationColType)
             {
                 case "date":
@@ -102,7 +102,7 @@ public class PostgreSqlTableWriter : ITableWriter
             }
         }
     }
-    
+
 
     private void Write(object?[] values)
     {

@@ -4,7 +4,7 @@
     image: postgres
     restart: always
     ports:
-      - "5432:5432"    
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: example #UserId is postgres
   # connection string for this db is: Server=localhost;Database=sample;User Id=SA;Password=eXample4eX3+24234$+;TrustServerCertificate=Yes      

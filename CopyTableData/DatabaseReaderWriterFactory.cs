@@ -23,7 +23,7 @@ public class DatabaseReaderWriterFactory
     {
         return GetFactory(tech).CreateTableReader(_connectionStrings.SourceDatabase);
     }
-    
+
     public IScriptExecutor CreateScriptExecutor(string tech)
     {
         return GetFactory(tech).CreateScriptExecutor(_connectionStrings.DestinationDatabase);

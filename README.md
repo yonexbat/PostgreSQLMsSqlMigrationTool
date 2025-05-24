@@ -93,9 +93,12 @@ tables.
 
 ### Step 4
 
-Go to project (folder) *Application*. Open file *appsettings.json* and set connection strings for SourceDatabase and DestinationDatabase. Then add a
-*migration-item* for each table you want to migrate. If the col-mappings are not set, the tool will try to map the columns. The names have to be identical (case-insensitive). 
-The order of the columns is not important. The tool will try to map the columns by name. If the column names are different, you have to set the col-mappings.
+Go to project (folder) *Application*. Open file *appsettings.json* and set connection strings for SourceDatabase and
+DestinationDatabase. Then add a
+*migration-item* for each table you want to migrate. If the col-mappings are not set, the tool will try to map the
+columns. The names have to be identical (case-insensitive).
+The order of the columns is not important. The tool will try to map the columns by name. If the column names are
+different, you have to set the col-mappings.
 
     {
       "ConnectionStrings": {

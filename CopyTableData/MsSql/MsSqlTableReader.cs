@@ -2,10 +2,9 @@
 
 namespace CopyTableData.MsSql;
 
-public class MsSqlTableReader : ITableReader
+public class MsSqlTableReader(string connectionString) : ITableReader
 {
 
-    private readonly string _connectionString;
     private SqlConnection? _connection;
     private bool _disposedValue;
 
@@ -14,11 +13,6 @@ public class MsSqlTableReader : ITableReader
     private SqlCommand? _sqlCommand;
 
     private object?[]? _values;
-
-    public MsSqlTableReader(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
 
     private int ColCount { get; set; }
 
@@ -34,7 +28,7 @@ public class MsSqlTableReader : ITableReader
     public void Open(string tableName, IList<string> colNames)
     {
         ColCount = colNames.Count;
-        _connection = new SqlConnection(_connectionString);
+        _connection = new SqlConnection(connectionString);
         _connection.Open();
         var sql = GetSql(tableName, colNames);
         _sqlCommand = new SqlCommand(sql, _connection);

@@ -20,6 +20,6 @@ public class MsSqlFactory : IDatabaseSpecificFactory
 
     public IScriptExecutor CreateScriptExecutor(string connectionString)
     {
-        throw new NotImplementedException();
+        return new MsSqlScriptExecutor(connectionString);
     }
 }

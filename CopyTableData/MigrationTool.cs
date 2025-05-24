@@ -25,6 +25,7 @@ public class MigrationTool
         {
             MigrateTable(migration);
         }
+
         ExecuteScripts(_migrationOptions.PostScripts);
     }
 
@@ -32,7 +33,7 @@ public class MigrationTool
     {
         foreach (var script in scripts)
         {
-            ExecuteScript(script);    
+            ExecuteScript(script);
         }
     }
 
@@ -41,9 +42,9 @@ public class MigrationTool
         _logger.LoadingScript(path);
         using StreamReader reader = new(path);
         // Read the stream as a string.
-        string sql = reader.ReadToEnd();
+        var sql = reader.ReadToEnd();
         _logger.ExecutingScript(sql);
-        var executor = this._databaseReaderWriterFactory.CreateScriptExecutor(_migrationOptions.DestinationDbTech);
+        var executor = _databaseReaderWriterFactory.CreateScriptExecutor(_migrationOptions.DestinationDbTech);
         executor.ExecuteScript(sql);
     }
 
@@ -85,7 +86,7 @@ public class MigrationTool
                     SourceColName = sourceCol.ColumnName,
                     DestinationColName = destinationCol.ColumnName,
                     SourceColType = sourceCol.DataType,
-                    DestinationColType = destinationCol.DataType
+                    DestinationColType = destinationCol.DataType,
                 };
                 migration.ColMappings.Add(colMapping);
             }
@@ -99,7 +100,7 @@ public class MigrationTool
             throw new ArgumentException("ColMappings must not be null or empty here");
         }
 
-        List<string> colNames = migration.ColMappings.Select(x => x.SourceColName).ToList()!;
+        var colNames = migration.ColMappings.Select(x => x.SourceColName).ToList()!;
         var reader = _databaseReaderWriterFactory.CreateTableReader(_migrationOptions.SourceDbTech);
         reader.Open(migration.SourceTableName, colNames);
         return reader;
@@ -112,7 +113,8 @@ public class MigrationTool
             throw new ArgumentException("ColMappings must not be null or empty here");
         }
 
-        List<DataBaseColMapping> colNamesDest = migration.ColMappings.Select(x => new DataBaseColMapping(x.SourceColName, x.SourceColType, x.DestinationColName, x.DestinationColType)).ToList()!;
+        var colNamesDest = migration.ColMappings
+            .Select(x => new DataBaseColMapping(x.SourceColName, x.SourceColType, x.DestinationColName, x.DestinationColType)).ToList()!;
         var writer = _databaseReaderWriterFactory.CreateTableWriter(_migrationOptions.DestinationDbTech);
         writer.Open(migration.DestinationTableName, colNamesDest);
         return writer;
@@ -133,18 +135,18 @@ public static partial class Log
         Level = LogLevel.Information,
         Message = "No col mapping defined for migration. Will lookup metadata in db and create col mapping.")]
     public static partial void NoColMappingDefined(this ILogger logger);
-    
+
     [LoggerMessage(
         EventId = 3,
         EventName = nameof(ExecutingScript),
         Level = LogLevel.Information,
         Message = "Executing SQL on destination database: {script}")]
-    public static partial void ExecutingScript(this ILogger logger, string script);    
-    
+    public static partial void ExecutingScript(this ILogger logger, string script);
+
     [LoggerMessage(
         EventId = 4,
         EventName = nameof(LoadingScript),
         Level = LogLevel.Information,
         Message = "Loading script {path}")]
-    public static partial void LoadingScript(this ILogger logger, string path);    
+    public static partial void LoadingScript(this ILogger logger, string path);
 }

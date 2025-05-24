@@ -2,32 +2,19 @@
 
 namespace CopyTableData.MsSql;
 
-public class MsSqlTableWriter : ITableWriter
+public class MsSqlTableWriter(string connectionString) : ITableWriter
 {
-    private readonly string _connectionString;
+    private IList<string> _colNames;
     private bool _disposedValue;
-    private int _fieldCount;
     private SqlBulkCopy? _sqlBulkCopy;
 
-    public MsSqlTableWriter(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
-
-    public SqlBulkCopy SqlBulkCopy
+    private SqlBulkCopy SqlBulkCopy
     {
         get
         {
             if (_sqlBulkCopy == null) throw new InvalidOperationException("Open() not called yet");
             return _sqlBulkCopy;
         }
-    }
-
-    public void Open(string tableName, IList<string> colNames)
-    {
-        _sqlBulkCopy = new SqlBulkCopy(_connectionString);
-        _sqlBulkCopy.DestinationTableName = tableName;
-        _fieldCount = colNames.Count;
     }
 
     public void Open(string tableName, IList<DataBaseColMapping> columns)
@@ -46,22 +33,34 @@ public class MsSqlTableWriter : ITableWriter
 
     public void WriteAll(ITableReader reader)
     {
-        var readerAdapter = new MsSqlReaderAdapter(reader, _fieldCount);
+        var readerAdapter = new MsSqlReaderAdapter(reader, _colNames);
         SqlBulkCopy.WriteToServer(readerAdapter);
+    }
+
+    private void Open(string tableName, IList<string> destinationColNames)
+    {
+        _sqlBulkCopy = new SqlBulkCopy(connectionString, SqlBulkCopyOptions.KeepIdentity);
+        _sqlBulkCopy.DestinationTableName = tableName;
+        foreach (var destColName in destinationColNames)
+        {
+            // MsSqlReaderAdapter maps the colnames of the destination to the index in the array of values of the record.
+            // See MsSqlReaderAdapter; public int GetOrdinal(string name)
+            _sqlBulkCopy.ColumnMappings.Add(new SqlBulkCopyColumnMapping(destColName, destColName));
+        }
+
+        _colNames = destinationColNames;
     }
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposedValue)
-        {
-            if (disposing)
-                if (_sqlBulkCopy != null)
-                {
-                    IDisposable disposable = _sqlBulkCopy;
-                    disposable.Dispose();
-                }
+        if (_disposedValue) return;
+        if (disposing)
+            if (_sqlBulkCopy != null)
+            {
+                IDisposable disposable = _sqlBulkCopy;
+                disposable.Dispose();
+            }
 
-            _disposedValue = true;
-        }
+        _disposedValue = true;
     }
 }

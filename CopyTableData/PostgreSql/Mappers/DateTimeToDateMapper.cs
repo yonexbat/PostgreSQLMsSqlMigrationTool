@@ -8,6 +8,7 @@ public class DateTimeToDateMapper : IMapper
         {
             return DateOnly.FromDateTime(date);
         }
+
         return input;
     }
 }

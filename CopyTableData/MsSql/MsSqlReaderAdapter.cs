@@ -3,22 +3,20 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CopyTableData.MsSql;
 
-internal class MsSqlReaderAdapter : IDataReader
+internal class MsSqlReaderAdapter(ITableReader reader, IList<string> destinationColNames) : IDataReader
 {
-    private readonly ITableReader _reader;
+    private readonly IList<string> _columnNames = destinationColNames;
     private object?[]? _values;
-
-    public MsSqlReaderAdapter(ITableReader reader, int fieldCount)
-    {
-        _reader = reader;
-        FieldCount = fieldCount;
-    }
 
     private object?[] Values
     {
         get
         {
-            if (_values == null) throw new InvalidOperationException("Open() not called yet");
+            if (_values == null)
+            {
+                throw new InvalidOperationException("Open() not called yet");
+            }
+
             return _values;
         }
     }
@@ -33,7 +31,28 @@ internal class MsSqlReaderAdapter : IDataReader
 
     public int RecordsAffected => throw new NotImplementedException();
 
-    public int FieldCount { get; }
+    public int FieldCount { get; } = destinationColNames.Count;
+
+    public int GetOrdinal(string name)
+    {
+        return _columnNames.IndexOf(name);
+    }
+
+    public object GetValue(int i)
+    {
+        return Values[i]!;
+    }
+
+    public bool Read()
+    {
+        var res = reader.Read();
+        if (res)
+        {
+            _values = reader.GetValues();
+        }
+
+        return res;
+    }
 
     public void Close()
     {
@@ -133,11 +152,6 @@ internal class MsSqlReaderAdapter : IDataReader
         throw new NotImplementedException();
     }
 
-    public int GetOrdinal(string name)
-    {
-        throw new NotImplementedException();
-    }
-
     public DataTable? GetSchemaTable()
     {
         throw new NotImplementedException();
@@ -146,11 +160,6 @@ internal class MsSqlReaderAdapter : IDataReader
     public string GetString(int i)
     {
         throw new NotImplementedException();
-    }
-
-    public object GetValue(int i)
-    {
-        return Values[i]!;
     }
 
     public int GetValues(object[] values)
@@ -166,12 +175,5 @@ internal class MsSqlReaderAdapter : IDataReader
     public bool NextResult()
     {
         throw new NotImplementedException();
-    }
-
-    public bool Read()
-    {
-        var res = _reader.Read();
-        if (res) _values = _reader.GetValues();
-        return res;
     }
 }

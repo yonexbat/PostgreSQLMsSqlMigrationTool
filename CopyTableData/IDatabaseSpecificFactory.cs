@@ -7,6 +7,6 @@ public interface IDatabaseSpecificFactory
     public ITableWriter CreateTableWriter(string connectionString);
 
     public IColumnReader CreateColumnReader(string connectionString);
-    
+
     public IScriptExecutor CreateScriptExecutor(string connectionString);
 }
