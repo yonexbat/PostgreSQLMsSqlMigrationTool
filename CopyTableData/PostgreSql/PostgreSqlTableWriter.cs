@@ -4,12 +4,11 @@ using Npgsql;
 
 namespace CopyTableData.PostgreSql;
 
-public class PostgreSqlTableWriter : ITableWriter
+public class PostgreSqlTableWriter(string connectionString, ILogger<PostgreSqlTableWriter> logger) : ITableWriter
 {
 
 
-    private readonly string _connectionString;
-    private readonly ILogger _logger;
+    private readonly ILogger _logger = logger;
     private readonly Dictionary<int, IMapper> _mappers = new();
     private NpgsqlBinaryImporter? _binaryImporter;
     private NpgsqlConnection? _connection;
@@ -17,12 +16,6 @@ public class PostgreSqlTableWriter : ITableWriter
 
     private bool _disposedValue;
 
-
-    public PostgreSqlTableWriter(string connectionString, ILogger<PostgreSqlTableWriter> logger)
-    {
-        _connectionString = connectionString;
-        _logger = logger;
-    }
 
     private NpgsqlBinaryImporter BinaryImporter
     {
@@ -66,7 +59,7 @@ public class PostgreSqlTableWriter : ITableWriter
 
     private void Open(string tableName, IList<string> colNames)
     {
-        _connection = new NpgsqlConnection(_connectionString);
+        _connection = new NpgsqlConnection(connectionString);
         _connection.Open();
 
         colNames = colNames.Select(x => $"\"{x}\"").ToList();
@@ -144,7 +137,7 @@ public class PostgreSqlTableWriter : ITableWriter
         }
     }
 
-    internal class Log
+    private class Log
     {
         internal static readonly Action<ILogger, int, Exception> CountInfo = LoggerMessage.Define<int>(
             LogLevel.Information,

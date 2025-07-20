@@ -14,7 +14,7 @@ public class DatabaseReaderWriterFactory
     public DatabaseReaderWriterFactory(ConnectionStrings connectionStrings, ILoggerFactory loggerFactory)
     {
         _connectionStrings = connectionStrings;
-        _msSqlFactory = new MsSqlFactory();
+        _msSqlFactory = new MsSqlFactory(loggerFactory);
         _postgreSqlFactory = new PostgreSqlFactory(loggerFactory);
     }
 

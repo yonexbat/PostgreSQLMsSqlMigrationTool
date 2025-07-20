@@ -2,14 +2,8 @@ using Microsoft.Extensions.Logging;
 
 namespace CopyTableData.PostgreSql;
 
-public class PostgreSqlFactory : IDatabaseSpecificFactory
+public class PostgreSqlFactory(ILoggerFactory loggerFactory) : IDatabaseSpecificFactory
 {
-
-    private readonly ILoggerFactory _loggerFactory;
-    public PostgreSqlFactory(ILoggerFactory loggerFactory)
-    {
-        _loggerFactory = loggerFactory;
-    }
 
     public ITableReader CreateTableReader(string connectionString)
     {
@@ -18,7 +12,7 @@ public class PostgreSqlFactory : IDatabaseSpecificFactory
 
     public ITableWriter CreateTableWriter(string connectionString)
     {
-        return new PostgreSqlTableWriter(connectionString, _loggerFactory.CreateLogger<PostgreSqlTableWriter>());
+        return new PostgreSqlTableWriter(connectionString, loggerFactory.CreateLogger<PostgreSqlTableWriter>());
     }
 
     public IColumnReader CreateColumnReader(string connectionString)
@@ -33,6 +27,6 @@ public class PostgreSqlFactory : IDatabaseSpecificFactory
 
     public IBinaryReaderWriter CreateBinaryReaderWriter(string connectionString)
     {
-        return new PostgreSqlBinaryReaderWriter(connectionString);
+        return new PostgreSqlBinaryReaderWriter(connectionString, loggerFactory);
     }
 }

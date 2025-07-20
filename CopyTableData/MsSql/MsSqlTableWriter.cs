@@ -4,7 +4,7 @@ namespace CopyTableData.MsSql;
 
 public class MsSqlTableWriter(string connectionString) : ITableWriter
 {
-    private IList<string> _colNames;
+    private IList<string>? _colNames;
     private bool _disposedValue;
     private SqlBulkCopy? _sqlBulkCopy;
 
@@ -33,7 +33,7 @@ public class MsSqlTableWriter(string connectionString) : ITableWriter
 
     public void WriteAll(ITableReader reader)
     {
-        var readerAdapter = new MsSqlReaderAdapter(reader, _colNames);
+        var readerAdapter = new MsSqlReaderAdapter(reader, _colNames!);
         SqlBulkCopy.WriteToServer(readerAdapter);
     }
 

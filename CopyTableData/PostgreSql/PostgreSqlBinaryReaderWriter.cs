@@ -1,9 +1,12 @@
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace CopyTableData.PostgreSql;
 
-public class PostgreSqlBinaryReaderWriter(string connectionString) : IBinaryReaderWriter
+public class PostgreSqlBinaryReaderWriter(string connectionString, ILoggerFactory loggerFactory) : IBinaryReaderWriter
 {
+    
+    private readonly ILogger _logger = loggerFactory.CreateLogger<PostgreSqlBinaryReaderWriter>();
     
     public IEnumerable<BinaryReadItem> GetBinaries(string tableName, string? idColumn, string binaryColumn)
     {
@@ -53,6 +56,15 @@ public class PostgreSqlBinaryReaderWriter(string connectionString) : IBinaryRead
             updateCommand.ExecuteNonQuery();
         
             totalBytesRead += bytesRead;
+            Log.BytesWritten(_logger, totalBytesRead, null);
         }
+    }
+    
+    private class Log
+    {
+        internal static readonly Action<ILogger, long, Exception?> BytesWritten = LoggerMessage.Define<long>(
+            LogLevel.Information,
+            new EventId(1002, nameof(BytesWritten)),
+            "bytes read/written: {bytesWritten}");
     }
 }

@@ -1,6 +1,8 @@
+using Microsoft.Extensions.Logging;
+
 namespace CopyTableData.MsSql;
 
-public class MsSqlFactory : IDatabaseSpecificFactory
+public class MsSqlFactory(ILoggerFactory loggerFactory) : IDatabaseSpecificFactory
 {
 
     public ITableReader CreateTableReader(string connectionString)
@@ -25,6 +27,6 @@ public class MsSqlFactory : IDatabaseSpecificFactory
 
     public IBinaryReaderWriter CreateBinaryReaderWriter(string connectionString)
     {
-        return new MsSqlBinaryReaderWrite(connectionString);
+        return new MsSqlBinaryReaderWrite(connectionString, loggerFactory);
     }
 }

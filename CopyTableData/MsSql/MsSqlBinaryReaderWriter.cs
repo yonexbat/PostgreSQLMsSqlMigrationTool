@@ -1,9 +1,11 @@
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 
 namespace CopyTableData.MsSql;
 
-public class MsSqlBinaryReaderWrite(string connectionString) : IBinaryReaderWriter
+public class MsSqlBinaryReaderWrite(string connectionString, ILoggerFactory loggerFactory) : IBinaryReaderWriter
 {
+    private readonly ILogger _logger = loggerFactory.CreateLogger<MsSqlBinaryReaderWrite>();
     public IEnumerable<BinaryReadItem> GetBinaries(string tableName, string? idColumn, string binaryColumn)
     {
         using SqlConnection connection = new SqlConnection(connectionString);
@@ -51,8 +53,15 @@ public class MsSqlBinaryReaderWrite(string connectionString) : IBinaryReaderWrit
             updateCommand.ExecuteNonQuery();
         
             totalBytesRead += bytesRead;
+            Log.BytesWritten(_logger, totalBytesRead, null);
         }
-        
-        
+    }
+    
+    private class Log
+    {
+        internal static readonly Action<ILogger, long, Exception?> BytesWritten = LoggerMessage.Define<long>(
+            LogLevel.Information,
+            new EventId(1001, nameof(BytesWritten)),
+            "bytes read/written: {bytesWritten}");
     }
 }

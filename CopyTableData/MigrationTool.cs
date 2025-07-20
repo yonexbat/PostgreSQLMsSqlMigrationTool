@@ -169,5 +169,5 @@ public static partial class Log
         EventName = nameof(CopyBinary),
         Level = LogLevel.Information,
         Message = "Copying binary. Id: {id}")]
-    public static partial void CopyBinary(this ILogger logger, string id);
+    public static partial void CopyBinary(this ILogger logger, string? id);
 }
