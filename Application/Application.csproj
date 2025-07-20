@@ -20,6 +20,9 @@
         <None Update="preScript.sql">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Update="old.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

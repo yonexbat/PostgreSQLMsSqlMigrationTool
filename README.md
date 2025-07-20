@@ -179,3 +179,24 @@ Start the application.
 ### Step 6
 
 Create sql statements to transfer data from the intermediate tables to the final tables.
+
+# Working with large binary data
+For tables with large binaries, there is a special tool.
+# Sample
+## Source
+    CREATE TABLE SampleWithBinary (
+        Id INT,
+        Data VARBINARY(MAX)
+    );
+    
+    INSERT INTO SampleWithBinary (Id, Data) VALUES (1, 0x01020304);
+    INSERT INTO SampleWithBinary (Id, Data) VALUES (2, 0x01020304);
+## Destination
+    CREATE TABLE SampleWithBinary (
+        id INTEGER PRIMARY KEY,
+        binary_data BYTEA NULL
+    );
+    
+    INSERT INTO SampleWithBinary (id, binary_data) VALUES (1, E'\\xDEADBEEF');
+    INSERT INTO SampleWithBinary (id, binary_data) VALUES (2, E'\\xDEADBEEF');
+

@@ -33,11 +33,22 @@ public class DatabaseReaderWriterFactory
     {
         return GetFactory(tech).CreateTableWriter(_connectionStrings.DestinationDatabase);
     }
+    
+    public IBinaryReaderWriter CreateBinaryReaderWriter(string tech, bool isSource)
+    {
+        var connectionString = GetconnectionString(isSource);
+        return GetFactory(tech).CreateBinaryReaderWriter(connectionString);
+    }
 
     public IColumnReader CreateColumnReader(string tech, bool isSource)
     {
-        var connectionString = isSource ? _connectionStrings.SourceDatabase : _connectionStrings.DestinationDatabase;
+        var connectionString = GetconnectionString(isSource);
         return GetFactory(tech).CreateColumnReader(connectionString);
+    }
+
+    private string GetconnectionString(bool isSoruce)
+    {
+        return isSoruce ? _connectionStrings.SourceDatabase : _connectionStrings.DestinationDatabase;
     }
 
     private IDatabaseSpecificFactory GetFactory(string tech)

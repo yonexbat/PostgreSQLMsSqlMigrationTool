@@ -15,4 +15,6 @@ public class MigrationOptions
     public IList<string> PostScripts { get; set; } = new List<string>();
 
     public IList<MigrationItem> MigrationItems { get; set; } = new List<MigrationItem>();
+    
+    public IList<CopyBinaryOptions> CopyBinaries { get; set; } = new List<CopyBinaryOptions>();
 }

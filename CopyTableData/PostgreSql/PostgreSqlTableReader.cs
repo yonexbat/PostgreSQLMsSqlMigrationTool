@@ -2,10 +2,9 @@
 
 namespace CopyTableData.PostgreSql;
 
-public class PostgreSqlTableReader : ITableReader
+public class PostgreSqlTableReader(string connectionString) : ITableReader
 {
 
-    private readonly string _connectionString;
     private NpgsqlConnection? _connection;
 
     private NpgsqlDataReader? _reader;
@@ -14,11 +13,6 @@ public class PostgreSqlTableReader : ITableReader
 
     private object?[]? _values;
     private bool disposedValue;
-
-    public PostgreSqlTableReader(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
 
     private int ColCount { get; set; }
 
@@ -34,7 +28,7 @@ public class PostgreSqlTableReader : ITableReader
     public void Open(string tableName, IList<string> colNames)
     {
         ColCount = colNames.Count;
-        _connection = new NpgsqlConnection(_connectionString);
+        _connection = new NpgsqlConnection(connectionString);
         _connection.Open();
         var sql = GetSql(tableName, colNames);
         _sqlCommand = new NpgsqlCommand(sql, _connection);

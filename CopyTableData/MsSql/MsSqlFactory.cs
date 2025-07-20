@@ -22,4 +22,9 @@ public class MsSqlFactory : IDatabaseSpecificFactory
     {
         return new MsSqlScriptExecutor(connectionString);
     }
+
+    public IBinaryReaderWriter CreateBinaryReaderWriter(string connectionString)
+    {
+        return new MsSqlBinaryReaderWrite(connectionString);
+    }
 }

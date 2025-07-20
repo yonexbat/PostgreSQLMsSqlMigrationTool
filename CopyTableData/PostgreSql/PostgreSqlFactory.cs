@@ -30,4 +30,9 @@ public class PostgreSqlFactory : IDatabaseSpecificFactory
     {
         return new PostgreSqlScriptExecutor(connectionString);
     }
+
+    public IBinaryReaderWriter CreateBinaryReaderWriter(string connectionString)
+    {
+        return new PostgreSqlBinaryReaderWriter(connectionString);
+    }
 }

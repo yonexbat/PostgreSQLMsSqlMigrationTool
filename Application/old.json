@@ -14,24 +14,24 @@
     "PostScripts": [
       "postScript.sql"
     ],
-
+    
     "MigrationItems": [
       {
         "SourceTableName": "SampleTable",
         "DestinationTableName": "sampletable"
       }
     ],
-
+    
     "CopyBinaries": [
       {
         "SourceTable": "SampleWithBinary",
         "SourceIdColumn": "Id",
         "SourceBinaryColumn": "Data",
         "DestinationTable": "samplewithbinary",
-        "DestinationIdColumn": "id",
+        "DestincationIdColumn": "id",
         "DestinationBinaryColumn": "binary_data"
-      }
+      }      
     ]
   }
-
+  
 }

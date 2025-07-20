@@ -9,4 +9,6 @@ public interface IDatabaseSpecificFactory
     public IColumnReader CreateColumnReader(string connectionString);
 
     public IScriptExecutor CreateScriptExecutor(string connectionString);
+    
+    public IBinaryReaderWriter CreateBinaryReaderWriter(string connectionString);
 }

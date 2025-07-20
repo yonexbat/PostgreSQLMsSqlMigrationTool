@@ -2,31 +2,38 @@
 
 namespace CopyTableData;
 
-public class MigrationTool
+public class MigrationTool(
+    MigrationOptions migrationOptions,
+    DatabaseReaderWriterFactory databaseReaderWriterFactory,
+    ILoggerFactory loggerFactory)
 {
-    private readonly DatabaseReaderWriterFactory _databaseReaderWriterFactory;
-    private readonly ILogger _logger;
-    private readonly MigrationOptions _migrationOptions;
-
-    public MigrationTool(
-        MigrationOptions migrationOptions,
-        DatabaseReaderWriterFactory databaseReaderWriterFactory,
-        ILoggerFactory loggerFactory)
-    {
-        _migrationOptions = migrationOptions;
-        _databaseReaderWriterFactory = databaseReaderWriterFactory;
-        _logger = loggerFactory.CreateLogger<MigrationTool>();
-    }
+    private readonly ILogger _logger = loggerFactory.CreateLogger<MigrationTool>();
 
     public void Migrate()
     {
-        ExecuteScripts(_migrationOptions.PreScripts);
-        foreach (var migration in _migrationOptions.MigrationItems)
+        ExecuteScripts(migrationOptions.PreScripts);
+        foreach (var migration in migrationOptions.MigrationItems)
         {
             MigrateTable(migration);
         }
 
-        ExecuteScripts(_migrationOptions.PostScripts);
+        foreach (var copyBinary in migrationOptions.CopyBinaries)
+        {
+            CopyBinaries(copyBinary);
+        }
+        ExecuteScripts(migrationOptions.PostScripts);
+    }
+
+    private void CopyBinaries(CopyBinaryOptions options)
+    {
+        _logger.CopyBinaries(options.SourceTable, options.DestinationTable);
+        var soruceReader = databaseReaderWriterFactory.CreateBinaryReaderWriter(migrationOptions.SourceDbTech, true);
+        var destinationWriter = databaseReaderWriterFactory.CreateBinaryReaderWriter(migrationOptions.DestinationDbTech, false);
+        foreach (var binary in soruceReader.GetBinaries(options.SourceTable, options.SourceIdColumn, options.SourceBinaryColumn))
+        {
+            _logger.CopyBinary(binary.Id.ToString());
+            destinationWriter.WriteBinary(options.DestinationTable, options.DestinationIdColumn, options.DestinationBinaryColumn, binary);
+        }
     }
 
     private void ExecuteScripts(IList<string> scripts)
@@ -44,7 +51,7 @@ public class MigrationTool
         // Read the stream as a string.
         var sql = reader.ReadToEnd();
         _logger.ExecutingScript(sql);
-        var executor = _databaseReaderWriterFactory.CreateScriptExecutor(_migrationOptions.DestinationDbTech);
+        var executor = databaseReaderWriterFactory.CreateScriptExecutor(migrationOptions.DestinationDbTech);
         executor.ExecuteScript(sql);
     }
 
@@ -68,11 +75,11 @@ public class MigrationTool
         _logger.NoColMappingDefined();
         migration.ColMappings ??= new List<ColMapping>();
 
-        var colReaderSource = _databaseReaderWriterFactory.CreateColumnReader(_migrationOptions.SourceDbTech, true);
+        var colReaderSource = databaseReaderWriterFactory.CreateColumnReader(migrationOptions.SourceDbTech, true);
         var sourceCols = colReaderSource.GetDataBaseCols(migration.SourceTableName);
 
         var colReaderDestination =
-            _databaseReaderWriterFactory.CreateColumnReader(_migrationOptions.DestinationDbTech, false);
+            databaseReaderWriterFactory.CreateColumnReader(migrationOptions.DestinationDbTech, false);
         var destinationCols = colReaderDestination.GetDataBaseCols(migration.DestinationTableName);
 
         foreach (var sourceCol in sourceCols)
@@ -101,7 +108,7 @@ public class MigrationTool
         }
 
         var colNames = migration.ColMappings.Select(x => x.SourceColName).ToList()!;
-        var reader = _databaseReaderWriterFactory.CreateTableReader(_migrationOptions.SourceDbTech);
+        var reader = databaseReaderWriterFactory.CreateTableReader(migrationOptions.SourceDbTech);
         reader.Open(migration.SourceTableName, colNames);
         return reader;
     }
@@ -115,7 +122,7 @@ public class MigrationTool
 
         var colNamesDest = migration.ColMappings
             .Select(x => new DataBaseColMapping(x.SourceColName, x.SourceColType, x.DestinationColName, x.DestinationColType)).ToList()!;
-        var writer = _databaseReaderWriterFactory.CreateTableWriter(_migrationOptions.DestinationDbTech);
+        var writer = databaseReaderWriterFactory.CreateTableWriter(migrationOptions.DestinationDbTech);
         writer.Open(migration.DestinationTableName, colNamesDest);
         return writer;
     }
@@ -149,4 +156,18 @@ public static partial class Log
         Level = LogLevel.Information,
         Message = "Loading script {path}")]
     public static partial void LoadingScript(this ILogger logger, string path);
+    
+    [LoggerMessage(
+        EventId = 5,
+        EventName = nameof(CopyBinaries),
+        Level = LogLevel.Information,
+        Message = "Copying binaries. Source table: {sourceTable}, Destination table: {destinationTable}")]
+    public static partial void CopyBinaries(this ILogger logger, string sourceTable, string destinationTable);
+    
+    [LoggerMessage(
+        EventId = 6,
+        EventName = nameof(CopyBinary),
+        Level = LogLevel.Information,
+        Message = "Copying binary. Id: {id}")]
+    public static partial void CopyBinary(this ILogger logger, string id);
 }
